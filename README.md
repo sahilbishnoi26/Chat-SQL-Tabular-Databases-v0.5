@@ -1,47 +1,34 @@
-# Advanced-Multi-Modal-Chatbot-v1.0
+# Q&A-and-RAG-with-SQL-and-TabularData
 
-An advanced multimodal chatbot integrating **Retrieval-Augmented Generation (RAG), Image Generation & Understanding, Speech-to-Text, and Real-Time Web Search** capabilities.
+**Q&A-and-RAG-with-SQL-and-TabularData** is a chatbot project utilizing **GPT-3.5, LangChain, SQLite, and ChromaDB**, allowing users to interact with **SQL databases, CSV, and XLSX files** using natural language for **Q&A and Retrieval-Augmented Generation (RAG)**.
 
-## Features
-
-- **ChatGPT-Like Interaction** – Functions as a general AI assistant.
-- **RAG Capabilities** – Supports retrieval from:
-  1. Preprocessed documents.
-  2. User-uploaded documents.
-  3. Any requested website.
-- **Image Generation** – Uses **Stable Diffusion** to generate images.
-- **Image Understanding** – Analyzes image content and answers related questions using the **LLaVA model**.
-- **Web Search Integration** – Retrieves real-time information via the **DuckDuckGo search engine**.
-- **Summarization** – Generates summaries for websites and documents.
-- **Text & Voice Interaction** – Accepts both text and voice inputs.
-- **Memory Retention** – Maintains session-based memory for a more personalized experience.
-
-### **Note:** This chatbot incorporates functionalities from both **RAG-GPT** and **WebRAGQuery** projects.
-
-## YouTube Demo:
-[Watch Here](https://youtu.be/AAvqscJPXIY?si=ApZ9-WfFfyGbcd-H)
+### **Key Note**
+It is **strongly advised** not to use SQL databases with **WRITE** privileges. Restrict access to **READ-ONLY** mode to prevent unintended data manipulation.
 
 ---
 
-## Core Technologies
-- **LLM Chains & Agents**
+## Features
+- **Chat with SQL Databases** – Query structured data using natural language.
+- **Chat with Preprocessed CSV/XLSX Data** – Access stored tabular datasets.
+- **Chat with Uploaded CSV/XLSX Files** – Process new files in real-time.
+- **RAG with Tabular Datasets** – Retrieve and augment responses using stored structured data.
+
+---
+
+## Core Techniques
+- **LLM Chains and Agents**
 - **GPT Function Calling**
 - **Retrieval-Augmented Generation (RAG)**
 
 ---
 
-## Models Used
+## Model Used
 - **GPT-3.5** – [Details](https://platform.openai.com/docs/models)
-- **text-embedding-ada-002** – [Details](https://platform.openai.com/docs/models)
-- **llava-hf/llava-v1.6-mistral-7b-hf** – [Code](https://github.com/haotian-liu/LLaVA) | [Demo](https://llava.hliu.cc/) | [Website](https://llava-vl.github.io/blog/2024-01-30-llava-next/) | [Models](https://github.com/haotian-liu/LLaVA/blob/main/docs/MODEL_ZOO.md#llava-v16)
-- **stabilityai/stable-diffusion-xl-base-1.0** – [Details](https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0)
-- **openai/whisper-base.en** – [Details](https://huggingface.co/openai/whisper-base.en)
 
 ---
 
 ## System Requirements
-- **Operating System:** Linux or Windows Subsystem for Linux (WSL).
-- **GPU VRAM:** Minimum **15 GB** required.
+- **Operating System:** Linux or Windows (Tested on **WSL for Windows**).
 - **OpenAI / Azure OpenAI Credentials:** Required for GPT functionality.
 
 ---
@@ -51,84 +38,87 @@ An advanced multimodal chatbot integrating **Retrieval-Augmented Generation (RAG
 ### **1. System Setup**
 ```
 sudo apt update && sudo apt upgrade
-python3 -m venv chatbot-env
+python3 -m venv sql-raggpt-env
 git clone <repository>
 ```
 
 ### **2. Navigate to the Project Directory**
 ```
-cd multimodal-chatbot
+cd SQL-RAG-GPT
 ```
 
 ### **3. Activate the Virtual Environment**
 ```
-source ...Path to the environment/chatbot-env/bin/activate
+source ...Path to the environment/sql-raggpt-env/bin/activate
 pip install -r requirements.txt
 ```
-
-*All models are accessed directly from HuggingFace; manual downloads are not required.*
 
 ---
 
 ## Execution
 
-### **Preparing Documents for RAG**
-Copy PDF files into the `data/docs` directory and run:
+### **1. Preparing a SQL Database from a `.sql` File**
+Copy the `.sql` file into the `data/sql` directory, then install SQLite:
 ```
-python src/prepare_vectordb_from_docs.py
-```
-
-### **One-Click Chatbot Execution**
-Run the following script:
-```
-./run_chatbot.sh
+sudo apt install sqlite3
 ```
 
-### **Accessing the Chatbot UI**
-Once the chatbot is running, visit:
-[http://127.0.0.1:7860](http://127.0.0.1:7860)
-
-### **Stopping the Chatbot**
-- **Detach from session:** Press **Ctrl + b**, then release both keys and press **d**.
-- **Terminate session in the terminal:**  
+Create the database:
 ```
-tmux kill-session -t chatbot
+sqlite3 data/sqldb.db
+.read data/sql/<your_database>.sql
+```
+
+**Example:**
+```
+.read data/sql/Chinook_Sqlite.sql
+```
+
+Verify database creation:
+```
+SELECT * FROM <table_name> LIMIT 10;
+```
+
+**Example:**
+```
+SELECT * FROM Artist LIMIT 10;
 ```
 
 ---
 
-## **Manual Execution (Alternative Approach)**
-
-Launch each service in a separate terminal:
-
-#### **Terminal 1: RAG Reference Service**
+### **2. Preparing a SQL Database from CSV/XLSX Files**
+Copy CSV/XLSX files into `data/csv_xlsx` and execute:
 ```
-python src/utils/web_servers/rag_reference_service.py
+python src/prepare_csv_xlsx_db.py
 ```
 
-#### **Terminal 2: LLava Service**
+This will generate `csv_xlsx_sqldb.db` inside the `data` directory.
+
+---
+
+### **3. Creating a VectorDB for CSV/XLSX Files**
+Copy CSV/XLSX files into `data/for_upload` and execute:
 ```
-python src/utils/web_servers/llava_service.py
+python src/prepare_csv_xlsx_vectordb.py
 ```
 
-#### **Terminal 3: Stable Diffusion Service**
-```
-python src/utils/web_servers/sdxl_service.py
-```
+This will create a **VectorDB** inside `data/chroma`.
 
-#### **Terminal 4: Speech-to-Text Service**
-```
-python src/utils/web_servers/stt_service.py
-```
+---
 
-#### **Terminal 5: Launch Chatbot Interface**
-```
-python src/app.py
-```
-or
-```
-gradio src/app.py
-```
+### **4. Uploading & Interacting with Datasets in Real Time**
+1. Set chat functionality to **"Process files"**.
+2. Upload the files and wait for confirmation that the database is ready.
+3. Switch chat functionality back to **"Chat"**.
+4. Set **"RAG with"** dropdown to **"Uploaded files"**.
+5. Start chatting.
+
+---
+
+## Project Schema
+<div align="center">
+  <img src="images/project_schema.png" alt="Schema">
+</div>
 
 ---
 
@@ -139,18 +129,15 @@ gradio src/app.py
 
 ---
 
-## Project Schema
-<div align="center">
-  <img src="images/Schema.png" alt="Schema">
-</div>
+## Preloaded Databases
+- **Diabetes Dataset** – [Download](https://www.kaggle.com/datasets/akshaydattatraykhare/diabetes-dataset?resource=download&select=diabetes.csv)
+- **Cancer Dataset** – [Download](https://www.kaggle.com/datasets/rohansahana/breast-cancer-dataset-for-beginners?select=train.csv)
+- **Chinook Database** – [Download](https://database.guide/2-sample-databases-sqlite/)
 
 ---
 
 ## Key Frameworks & Libraries
 - **LangChain** – [Introduction](https://python.langchain.com/docs/get_started/introduction)
-- **DuckDuckGo Search Engine** – [Documentation](https://pypi.org/project/duckduckgo-search/)
 - **Gradio** – [Documentation](https://www.gradio.app/docs/interface)
 - **OpenAI API** – [Quickstart](https://platform.openai.com/docs/quickstart?context=python)
-- **Transformers Library** – [Documentation](https://huggingface.co/docs/transformers/en/index)
-- **ChromaDB** – [Documentation](https://docs.trychroma.com/)
-- **BeautifulSoup (bs4)** – [Documentation](https://beautiful-soup-4.readthedocs.io/en/latest/)
+- **SQLAlchemy** – [Documentation](https://www.sqlalchemy.org/)
