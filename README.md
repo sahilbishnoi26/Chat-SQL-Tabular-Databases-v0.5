@@ -1,4 +1,4 @@
-# Q&A-and-RAG-with-SQL-and-TabularData
+# Chat-SQL-Tabular-Databases-v0.5
 
 **Q&A-and-RAG-with-SQL-and-TabularData** is a chatbot project utilizing **GPT-3.5, LangChain, SQLite, and ChromaDB**, allowing users to interact with **SQL databases, CSV, and XLSX files** using natural language for **Q&A and Retrieval-Augmented Generation (RAG)**.
 
